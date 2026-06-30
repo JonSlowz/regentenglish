@@ -1,11 +1,1247 @@
 <!DOCTYPE html>
+<html lang="th">
+<head>
+  <base target="_top">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg-color: #f4f6f8; --card-bg: #ffffff; --text-dark: #334155; --text-muted: #64748b; --border-color: #e2e8f0; --primary-color: #3b82f6; --radius: 12px; }
+    body { background-color: var(--bg-color); font-family: 'Sarabun', sans-serif; color: var(--text-dark); margin: 0; padding: 30px; font-size: 15px; }
+    #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f4f6f8; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+    .login-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); text-align: center; width: 320px; border: 1px solid #e2e8f0; }
+    .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; box-sizing: border-box; text-align: center; }
+    .login-btn { width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .login-btn:hover { background: #2563eb; }
+    .login-error { color: #ef4444; margin-top: 10px; font-size: 14px; display: none; }
+    #main-app { display: none; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .tab-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 0; }
+    .tab-btn { padding: 12px 24px; cursor: pointer; border: none; background: none; font-family: 'Sarabun'; font-size: 16px; font-weight: 600; color: #94a3b8; border-bottom: 3px solid transparent; transition: all 0.2s; margin-bottom: -2px; }
+    .tab-btn:hover { color: #64748b; }
+    .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+    .tab-content { display: none; animation: fadeIn 0.3s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .grid-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+    .card { background-color: var(--card-bg); border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+    h2.section-title { font-size: 18px; font-weight: 600; margin: 0 0 20px 0; color: var(--text-dark); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+    .row { margin-bottom: 12px; display: flex; align-items: center; }
+    label { width: 130px; text-align: right; margin-right: 15px; font-weight: 600; color: var(--text-muted); font-size: 14px; }
+    input, select { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-family: 'Sarabun'; font-size: 14px; background-color: #f8fafc; box-sizing: border-box; width: 100%; }
+    input:focus, select:focus { outline: none; border-color: var(--primary-color); background-color: #ffffff; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    input[readonly] { cursor: not-allowed; }
+    .full-width-card { grid-column: 1 / -1; margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; padding: 12px; text-align: left; border-bottom: 2px solid var(--border-color); font-size: 14px; border-right: 1px solid #e2e8f0; white-space: nowrap; }
+    td { padding: 10px; border-bottom: 1px solid var(--border-color); border-right: 1px solid #e2e8f0; white-space: nowrap; }
+    th:last-child, td:last-child { border-right: none; }
+    td input, td select { width: 100%; background-color: transparent; border: 1px solid transparent; }
+    td input:focus, td select:focus { border: 1px solid var(--primary-color); background-color: white; }
+    .compact-table th, .compact-table td { padding: 4px 8px; }
+    .compact-table input, .compact-table select { padding: 4px; margin: 0; }
+    .table-container { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 8px; contain: layout style; }
+    .bg-pink { background-color: white; border-radius: 4px; border: 1px solid #ffebee; } .bg-pink input { color: #d32f2f; font-weight: 600; }
+    .bg-dark-gray input { background-color: #64748b !important; color: white !important; font-weight: bold; border: 1px solid #475569; }
+    .bg-light-red input { background-color: #fee2e2 !important; color: #991b1b !important; font-weight: bold; border: 1px solid #fca5a5; }
+    .bg-light-green input { background-color: #dcfce7 !important; color: black !important; font-weight: bold; border: 1px solid #86efac; font-size: 16px; }
+    .bg-normal input { background-color: white !important; color: black !important; border: 1px solid #e2e8f0; }
+    .btn { padding: 10px 16px; border: none; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; font-family: 'Sarabun'; transition: all 0.2s; width: 100%; margin-bottom: 8px; }
+    .btn-outline { background: white; border: 1px solid var(--border-color); color: #334155; } .btn-outline:hover { background: #f8fafc; }
+    .btn-clear { background: #fff; border: 1px solid #e2e8f0; color: #334155; } .btn-clear:hover { background: #f1f5f9; }
+    .btn-save { background: #4caf50; color: white; } .btn-save:hover { background: #43a047; }
+    .btn-edit { background: #fdd835; color: black; } .btn-edit:hover { background: #fbc02d; }
+    .btn-cancel { background: #f44336; color: white; } .btn-cancel:hover { background: #e53935; }
+    .btn-print { background: #2196f3; color: white; } .btn-print:hover { background: #1e88e5; }
+    button:disabled, .btn-disabled { background-color: #94a3b8 !important; color: white !important; border: 1px solid #cbd5e1 !important; cursor: not-allowed; pointer-events: none; opacity: 0.7; }
+    .btn-delete { background: #fee2e2; color: #991b1b; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; width: auto; margin-bottom: 0; }
+    .btn-add-row { width: 100%; padding: 10px; border: 2px dashed #e2e8f0; background: transparent; color: #64748b; margin-top: 10px; cursor: pointer; border-radius: 6px; font-weight: 600; }
+    .btn-add-row:disabled { opacity: 0.5; cursor: not-allowed; }
+    .footer-section { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; gap: 30px; }
+    .payment-area { flex: 1; }
+    .summary-area { width: 350px; display: flex; flex-direction: column; gap: 10px; }
+    .summary-row { display: flex; align-items: center; gap: 10px; }
+    .summary-label { font-weight: 600; color: var(--text-muted); width: 140px; text-align: right; }
+    .summary-val { flex: 1; }
+    .info-row { display: flex; align-items: center; margin-bottom: 12px; }
+    .info-label { width: 70px; font-size: 13px; color: var(--text-muted); font-weight: 600; text-align: right; margin-right: 10px; }
+    .badge-display { flex-grow: 1; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: 500; background: #e2e8f0; color: #475569; text-align: center; min-height: 20px; }
+    .badge-active { background: #dcfce7 !important; color: #166534 !important; }
+    .badge-cancel { background: #fee2e2 !important; color: #991b1b !important; }
+    .badge-empty { background: #f1f5f9; color: #cbd5e1; font-style: italic; font-size: 13px; }
+    .btn-refresh { background: #e2e8f0; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; margin-left: 8px; transition: all 0.4s ease; }
+    .btn-refresh:hover { background: #cbd5e1; color: #334155; transform: rotate(180deg); }
+    .btn-refresh:disabled { opacity: 0.3; cursor: not-allowed; animation: spin 1s infinite linear; transform: none; }
+    .btn-refresh-sm { background: white; border: 1px solid #cbd5e1; border-radius: 6px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; margin-left: 5px; transition: all 0.2s; }
+    .btn-refresh-sm:hover { background: #f1f5f9; color: #3b82f6; border-color: #3b82f6; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .editing-label { color: #dc2626; font-size: 12px; margin-left: 10px; animation: blink 1.5s infinite; display: none; }
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    .search-action-group { margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+    .text-center { text-align: center; }
+    .search-row { display: flex; gap: 8px; margin-bottom: 15px; align-items: center; }
+    .col-small { flex: 0.8; } .col-large { flex: 1.5; }
+    .search-labels { display: flex; gap: 8px; margin-bottom: 2px; font-size: 12px; color: var(--text-muted); font-weight: 600; padding-left: 2px; }
+    .search-row select { text-align: center; text-align-last: center; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.45); align-items: center; justify-content: center; will-change: opacity; }
+    .modal-content { background: white; padding: 30px; border-radius: 16px; width: 380px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); position: relative; }
+    .modal-confirm-content { background: white; padding: 30px; border-radius: 16px; width: 750px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; max-height: 90vh; overflow-y: auto; border: 1px solid #e2e8f0; }
+    .modal-large-content { background: white; padding: 30px; border-radius: 16px; width: 900px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); position: relative; max-height: 95vh; overflow-y: auto; }
+    .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; z-index: 10; }
+    .modal-btn { display: block; width: 100%; padding: 12px; margin: 12px 0; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; color: white; font-family: 'Sarabun'; }
+    .btn-back { background: #e2e8f0; color: #334155; }
+    .diff-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; text-align: left; }
+    .diff-table th { background: #f1f5f9; padding: 12px; color: #475569; font-weight: 600; border-bottom: 2px solid #e2e8f0; }
+    .diff-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    .val-old { color: #ef4444; background: #fef2f2; padding: 4px 8px; border-radius: 6px; text-decoration: line-through; border: 1px solid #fee2e2; display: block; margin-bottom: 4px; font-size: 13px; }
+    .val-new { color: #166534; background: #f0fdf4; padding: 4px 8px; border-radius: 6px; font-weight: 600; border: 1px solid #dcfce7; display: block; }
+  </style>
+</head>
+<body>
 
-<html>
-   <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-      <base target="_top">
-   </head>
-   <body>
-      <iframe style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;border: 0;" src="https://script.google.com/macros/s/AKfycbw63HDiHjygfTKZNUiGZ2YjqC6DAfnSLHgL77GG-QTiGz5CIuiyMQthDwKr4JkWG9uY/exec"></iframe>
-   </body>
+<div id="login-overlay">
+  <div class="login-card">
+    <img src="https://regentenglishschool.com/wp-content/uploads/2026/02/LOG-RE-scaled.webp" alt="REGENT LOGO" style="height:70px;width:auto;margin-bottom:30px;display:block;">
+    <input type="text"     id="loginUsername" class="login-input" placeholder="Username" onkeyup="if(event.key==='Enter') $('loginPassword').focus()">
+    <input type="password" id="loginPassword" class="login-input" placeholder="Password" onkeyup="if(event.key==='Enter') doLogin()">
+    <button class="login-btn" onclick="doLogin()">Login</button>
+    <div id="loginError" class="login-error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+  </div>
+</div>
+
+<div id="main-app" class="container">
+  <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e2e8f0;margin-bottom:20px;">
+    <div class="tab-nav" style="border-bottom:none;margin-bottom:0;">
+      <button id="btn-tab-receipt"  class="tab-btn active" onclick="switchTab('tab-receipt')">📝 สร้างใบเสร็จรับเงิน</button>
+      <button id="btn-tab-print"    class="tab-btn"        onclick="switchTab('tab-print')">🖨️ พิมพ์ใบเสร็จ</button>
+      <button id="btn-tab-customer" class="tab-btn"        onclick="switchTab('tab-customer')">👤 ข้อมูลลูกค้า</button>
+    </div>
+  </div>
+
+  <!-- TAB: สร้างใบเสร็จ -->
+  <div id="tab-receipt" class="tab-content active">
+    <div class="grid-layout">
+      <div class="card form-section">
+        <h2 class="section-title">📄 สร้างข้อมูลลูกค้า</h2>
+        <div class="row">
+          <label>หมายเลขใบเสร็จ</label>
+          <div style="display:flex;align-items:center;">
+            <input type="text" id="receiptNo" value="Loading..." style="width:150px;font-weight:bold;color:var(--primary-color);" readonly>
+            <span id="editingLabel" class="editing-label">● Editing...</span>
+            <button id="btnRefresh" class="btn-refresh" onclick="generateNewReceiptId()" title="รีเฟรชเลขที่ใหม่">
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            </button>
+          </div>
+        </div>
+        <!-- ⚡ oninput เพิ่ม generateNewReceiptId() → อัปเดต ID preview ทันทีเมื่อเปลี่ยนวันที่ (client-side, 0ms) -->
+        <div class="row"><label>วันที่</label><input type="date" id="receiptDate" style="width:200px;" oninput="_previewReceiptId(); checkFormValidity()"></div>
+        <div class="row"><label>PT No.</label><div style="display:flex;gap:10px;align-items:center;">
+          <input type="text" id="placementNo" style="width:120px;" 
+            oninput="debounceFetchPT(this.value)"
+            onkeydown="if(event.key==='Enter'){ event.preventDefault(); fetchPTAndApply(this.value); }">
+          <button class="btn btn-outline" style="width:auto;" onclick="fetchPTAndApply($('placementNo').value)">ดึงข้อมูล</button>
+        </div></div>
+        <div class="row"><label>ชื่อ-นามสกุล <span style="color:red">*</span></label><input type="text" id="customerName" style="width:320px;" oninput="checkFormValidity()"></div>
+        <div class="row"><label>ชื่อเล่น</label><input type="text" id="nickname" style="width:200px;"></div>
+        <div class="row"><label>เลขที่ผู้เสียภาษี</label><input type="text" id="taxId" style="width:200px;"></div>
+        <div class="row"><label>ที่อยู่ <span style="color:red">*</span></label><input type="text" id="address" style="width:320px;" oninput="checkFormValidity()"></div>
+        <div class="row"><label>เบอร์โทร <span style="color:red">*</span></label><input type="text" id="tel" style="width:200px;" oninput="checkFormValidity()"></div>
+        <div class="row"><label>สถานะนักเรียน <span style="color:red">*</span></label><select id="studentStatus" style="width:200px;" onchange="checkFormValidity()"><option value="">- เลือกสถานะ -</option><option value="ใหม่">ใหม่</option><option value="เก่า">เก่า</option></select></div>
+      </div>
+      <div class="card search-panel">
+        <h2 class="section-title">🔍 ค้นหา & จัดการ</h2>
+        <div class="search-labels"><div class="col-small text-center">ปี</div><div class="col-small text-center">เดือน</div><div class="col-large text-center">เลขที่ใบเสร็จ</div></div>
+        <div class="search-row">
+          <select id="searchYear"  class="col-small" onchange="filterSearch()"><option value="">-</option></select>
+          <select id="searchMonth" class="col-small" onchange="filterSearch()"><option value="">-</option></select>
+          <select id="searchId"    class="col-large" onchange="updateSearchInfo(); checkFormValidity();"><option value="">-</option></select>
+          <button id="btnSearchRefresh" class="btn-refresh" onclick="refreshSearchIDsOnly()" title="รีเฟรชรายการ"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></button>
+        </div>
+        <div class="info-row"><span class="info-label">สถานะ:</span><div id="displayStatus" class="badge-display badge-empty">กรุณาเลือกใบเสร็จ</div></div>
+        <div class="info-row"><span class="info-label">ชื่อ-สกุล:</span><div id="displayName" class="badge-display badge-empty">กรุณาเลือกใบเสร็จ</div></div>
+        <div class="info-row"><span class="info-label">ชื่อเล่น:</span><div id="displayNick" class="badge-display badge-empty">กรุณาเลือกใบเสร็จ</div></div>
+        <div class="search-action-group">
+          <button class="btn btn-clear"   onclick="clearData()">Clear filter</button>
+          <button id="btnSave"   class="btn btn-save"   onclick="prepareSaveNew()" disabled>บันทึก</button>
+          <button id="btnUpdate" class="btn btn-edit"   onclick="prepareEdit()"    disabled>แก้ไข</button>
+          <button id="btnCancel" class="btn btn-cancel" onclick="prepareCancel()"  disabled>ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+    <div class="card full-width-card table-section">
+      <h2 class="section-title">รายการคอร์สเรียน</h2>
+      <table id="courseTable">
+        <thead><tr><th width="5%" class="text-center">ลำดับ</th><th width="35%">คอร์ส</th><th width="10%" class="text-center">ชั่วโมง</th><th width="15%" class="text-center">ราคา</th><th width="15%" class="text-center">ส่วนลด</th><th width="15%" class="text-center">ยอดสุทธิ</th><th width="5%"></th></tr></thead>
+        <tbody id="courseTableBody"></tbody>
+      </table>
+      <button id="btnAddRow" class="btn-add-row" onclick="addCourseRow('main')">+ เพิ่มรายการคอร์ส</button>
+      <div class="footer-section">
+        <div class="payment-area">
+          <div class="row"><label style="width:100px;">ช่องทางชำระ <span style="color:red">*</span></label><select id="paymentMethod" style="width:250px;" onchange="updateBanks('main'); checkFormValidity();"><option value="">- เลือก -</option></select></div>
+          <div class="row"><label style="width:100px;">ธนาคาร</label><select id="bankSelect" style="width:250px;" onchange="updateAccounts('main')"><option value="">-</option></select></div>
+          <div class="row"><label style="width:100px;">ชื่อบัญชี</label><select id="accountSelect" style="width:250px;"><option value="">-</option></select></div>
+          <div class="row"><label style="width:100px;">หมายเหตุ</label><input type="text" id="remark" style="width:250px;height:38px;"></div>
+        </div>
+        <div class="summary-area">
+          <div class="summary-row"><div class="summary-label">ยอดรวมทุกคอร์ส:</div><div class="summary-val bg-dark-gray"><input type="text" id="sumPriceDisplay" class="text-center" readonly value="0"></div></div>
+          <div class="summary-row"><div class="summary-label">รวมส่วนลดทุกคอร์ส:</div><div class="summary-val bg-light-red"><input type="text" id="sumDiscountDisplay" class="text-center" readonly value="0"></div></div>
+          <div class="summary-row"><div class="summary-label">ลดพิเศษ:</div><div class="summary-val bg-normal"><input type="text" id="specialDiscount" class="text-center" oninput="this.value=this.value.replace(/[^0-9]/g,'');" onblur="this.value=nc(this.value); calcGrandTotal('main')"></div></div>
+          <div class="summary-row"><div class="summary-label" style="font-size:16px;color:#166534;">รวมเงินที่ชำระ:</div><div class="summary-val bg-light-green"><input type="text" id="grandTotal" value="0" class="text-center" readonly></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: พิมพ์ใบเสร็จ -->
+  <div id="tab-print" class="tab-content">
+    <div class="card full-width-card" style="margin-top:0;">
+      <h2 class="section-title">🖨️ พิมพ์ใบเสร็จ</h2>
+      <div style="background:#f1f5f9;padding:15px;border-radius:12px;margin-bottom:15px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div><div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:2px;">ปี</div><select id="p_searchYear" style="width:100px;text-align:center;" onchange="filterPrintSearch()"><option value="">-</option></select></div>
+        <div><div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:2px;">เดือน</div><select id="p_searchMonth" style="width:100px;text-align:center;" onchange="filterPrintSearch()"><option value="">-</option></select></div>
+        <div>
+          <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:2px;">เลขที่ใบเสร็จ</div>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <select id="p_searchId" style="width:120px;text-align:center;" onchange="updatePrintPreview()"><option value="">- เลือก -</option></select>
+            <button id="btnPrintRefresh" class="btn-refresh-sm" onclick="refreshAllData()" title="รีเฟรช"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></button>
+          </div>
+        </div>
+        <div style="width:1px;height:40px;background:#e2e8f0;margin:0 10px;"></div>
+        <div>
+          <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:2px;">เลือกภาษา & พิมพ์</div>
+          <div style="display:flex;gap:10px;">
+            <div style="display:flex;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;">
+              <button onclick="changePrintLang('TH')" id="btnLangTH" style="border:none;padding:8px 15px;cursor:pointer;background:#3b82f6;color:white;font-weight:bold;">TH</button>
+              <button onclick="changePrintLang('EN')" id="btnLangEN" style="border:none;padding:8px 15px;cursor:pointer;background:white;color:#334155;font-weight:bold;">EN</button>
+            </div>
+            <button class="btn btn-save" onclick="printIframe()" style="height:auto;margin-bottom:0;width:auto;padding:0 20px;background-color:#10b981;display:flex;align-items:center;">🖨️ สั่งพิมพ์ (Print)</button>
+          </div>
+        </div>
+      </div>
+      <div style="background:#525659;border-radius:8px;padding:20px;overflow:auto;display:flex;justify-content:center;height:900px;">
+        <iframe id="previewFrame" style="width:210mm;height:290mm;background:white;border:none;box-shadow:0 0 10px rgba(0,0,0,0.5);"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: ข้อมูลลูกค้า -->
+  <div id="tab-customer" class="tab-content">
+    <div class="card full-width-card">
+      <h2 class="section-title">👤 ฐานข้อมูลลูกค้า</h2>
+      <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center;background:#f8fafc;padding:15px;border-radius:8px;border:1px solid #e2e8f0;">
+        <div><div style="font-size:12px;color:#64748b;margin-bottom:2px;">ปี</div><select id="custYear" style="width:100px;" onchange="filterCustomerTable()"><option value="-">-</option></select></div>
+        <div><div style="font-size:12px;color:#64748b;margin-bottom:2px;">เดือน</div><select id="custMonth" style="width:100px;" onchange="filterCustomerTable()"><option value="-">-</option></select></div>
+        <div style="flex:1;">
+          <div style="font-size:12px;color:#64748b;margin-bottom:2px;">ค้นหา (เลขที่, ชื่อ, ชื่อเล่น)</div>
+          <div style="display:flex;align-items:center;">
+            <input type="text" id="custSearch" placeholder="พิมพ์คำค้นหา..." style="width:30%;" oninput="debounceFilterCustomer()">
+            <button class="btn-refresh-sm" onclick="refreshAllData(); filterCustomerTable();" title="รีเฟรชข้อมูล" style="height:38px;width:38px;margin-left:5px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div id="topScroll" style="overflow-x:auto;overflow-y:hidden;width:100%;margin-bottom:5px;height:20px;"><div id="topScrollContent" style="height:1px;"></div></div>
+      <div id="realTable" class="table-container">
+        <table style="width:100%;border-collapse:collapse;font-size:14px;white-space:nowrap;">
+          <thead>
+            <tr>
+              <th>เลขที่เอกสาร</th><th>วันที่</th><th>PT No.</th><th>ชื่อ-นามสกุล</th><th>ชื่อเล่น</th><th>เบอร์โทร</th>
+              <th>คอร์ส 1</th><th>คอร์ส 2</th><th>คอร์ส 3</th><th>คอร์ส 4</th>
+              <th>ชั่วโมง 1</th><th>ชั่วโมง 2</th><th>ชั่วโมง 3</th><th>ชั่วโมง 4</th>
+              <th>ราคา 1</th><th>ราคา 2</th><th>ราคา 3</th><th>ราคา 4</th>
+              <th>รวมราคา</th><th>ส่วนลด 1</th><th>ส่วนลด 2</th><th>ส่วนลด 3</th><th>ส่วนลด 4</th>
+              <th>รวมส่วนลด</th><th>จำนวนเงิน 1</th><th>จำนวนเงิน 2</th><th>จำนวนเงิน 3</th><th>จำนวนเงิน 4</th>
+              <th>รวมเงินที่ชำระ</th><th>ลดพิเศษ</th><th>ช่องทางชำระ</th><th>ธนาคาร</th><th>ชื่อบัญชี</th><th>หมายเหตุ</th><th>Status</th><th>สถานะใบเสร็จ</th>
+            </tr>
+          </thead>
+          <tbody id="customerTableBody">
+            <tr><td colspan="40" class="text-center" style="padding:20px;color:#94a3b8;">กรุณาเลือก ปี/เดือน หรือเลือก 'ทั้งหมด' เพื่อแสดงข้อมูล</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div id="editInputModal" class="modal">
+  <div class="modal-large-content">
+    <span class="close-btn" onclick="closeModal('editInputModal')">&times;</span>
+    <div style="text-align:left;color:#d97706;font-weight:bold;margin-bottom:30px;">✏️ แก้ไขใบเสร็จ: <span id="edit_receiptNo_Display"></span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;text-align:left;">
+      <div>
+        <div class="row"><label>วันที่</label><input type="date" id="edit_receiptDate"></div>
+        <div class="row"><label>PT No.</label><input type="text" id="edit_placementNo"></div>
+        <div class="row"><label>ชื่อ-นามสกุล</label><input type="text" id="edit_customerName"></div>
+        <div class="row"><label>ชื่อเล่น</label><input type="text" id="edit_nickname"></div>
+      </div>
+      <div>
+        <div class="row"><label>เลขผู้เสียภาษี</label><input type="text" id="edit_taxId"></div>
+        <div class="row"><label>ที่อยู่</label><input type="text" id="edit_address"></div>
+        <div class="row"><label>เบอร์โทร</label><input type="text" id="edit_tel"></div>
+        <div class="row"><label>สถานะ นร.</label><select id="edit_studentStatus"><option value="ใหม่">ใหม่</option><option value="เก่า">เก่า</option></select></div>
+      </div>
+    </div>
+    <div style="margin-top:20px;border-top:1px solid #eee;padding-top:10px;">
+      <table id="edit_courseTable" class="compact-table">
+        <thead><tr><th>ลำดับ</th><th>คอร์ส</th><th>ชั่วโมง</th><th>ราคา</th><th>ส่วนลด</th><th>ยอดสุทธิ</th><th></th></tr></thead>
+        <tbody id="edit_courseTableBody"></tbody>
+      </table>
+      <button class="btn-add-row" onclick="addCourseRow('edit')">+ เพิ่มรายการ</button>
+    </div>
+    <div class="footer-section">
+      <div class="payment-area">
+        <div class="row"><label>ช่องทางชำระ</label><select id="edit_paymentMethod" onchange="updateBanks('edit')"></select></div>
+        <div class="row"><label>ธนาคาร</label><select id="edit_bankSelect" onchange="updateAccounts('edit')"></select></div>
+        <div class="row"><label>ชื่อบัญชี</label><select id="edit_accountSelect"></select></div>
+        <div class="row"><label>หมายเหตุ</label><input type="text" id="edit_remark"></div>
+      </div>
+      <div class="summary-area">
+        <div class="summary-row"><div class="summary-label">ยอดรวม:</div><div class="summary-val bg-dark-gray"><input type="text" id="edit_sumPriceDisplay" readonly></div></div>
+        <div class="summary-row"><div class="summary-label">ส่วนลด:</div><div class="summary-val bg-light-red"><input type="text" id="edit_sumDiscountDisplay" readonly></div></div>
+        <div class="summary-row"><div class="summary-label">ลดพิเศษ:</div><div class="summary-val bg-normal"><input type="text" id="edit_specialDiscount" oninput="this.value=this.value.replace(/[^0-9]/g,'');" onblur="this.value=nc(this.value); calcGrandTotal('edit')"></div></div>
+        <div class="summary-row"><div class="summary-label">รวมสุทธิ:</div><div class="summary-val bg-light-green"><input type="text" id="edit_grandTotal" readonly></div></div>
+      </div>
+    </div>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px;">
+      <button id="btnSaveEditPreview" class="modal-btn btn-save" style="width:150px;" onclick="saveEditPreview()">บันทึกการแก้ไข</button>
+      <button class="modal-btn btn-cancel" style="width:100px;" onclick="closeModal('editInputModal')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirmUpdateModal" class="modal">
+  <div class="modal-confirm-content">
+    <span class="close-btn" onclick="closeModal('confirmUpdateModal')">&times;</span>
+    <div style="color:#3b82f6;">⚠️ ยืนยันการแก้ไขข้อมูล</div>
+    <p style="color:#64748b;margin-bottom:20px;">หมายเลขใบเสร็จ: <strong id="updateTitleId" style="color:#3b82f6;">...</strong></p>
+    <table class="diff-table">
+      <thead><tr><th style="width:25%;">รายการ</th><th style="width:37%;">ก่อนแก้ไข</th><th style="width:38%;">หลังแก้ไข</th></tr></thead>
+      <tbody id="diffTableBody"></tbody>
+    </table>
+    <div style="margin-top:30px;display:flex;gap:10px;justify-content:center;">
+      <button id="btnConfirmEdit" class="modal-btn btn-edit"   style="width:120px;" onclick="confirmEdit()">ยืนยัน</button>
+      <button id="btnBackEdit"    class="modal-btn btn-back"   style="width:120px;" onclick="backToEdit()">กลับไปแก้ไข</button>
+      <button class="modal-btn btn-cancel" style="width:120px;" onclick="closeModal('confirmUpdateModal')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirmCancelModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal('confirmCancelModal')">&times;</span>
+    <div style="color:#ef4444;">🗑️ ยืนยันการยกเลิก</div>
+    <p style="color:#334155;margin-bottom:10px;">คุณต้องการยกเลิกใบเสร็จ <strong id="cancelTargetId"></strong> ใช่หรือไม่?</p>
+    <p style="color:#ef4444;font-size:13px;">(เมื่อยกเลิกแล้วจะไม่สามารถ "แก้ไข" หรือ "พิมพ์" ได้อีก)</p>
+    <button id="btnConfirmCancel" class="modal-btn btn-cancel" onclick="executeCancel()">ยืนยันยกเลิก</button>
+    <button id="btnBackCancel"    class="modal-btn btn-back"   onclick="closeModal('confirmCancelModal')">กลับ</button>
+  </div>
+</div>
+
+<div id="confirmSaveAsNewModal" class="modal">
+  <div class="modal-content" style="width:450px;">
+    <span class="close-btn" onclick="closeModal('confirmSaveAsNewModal')">&times;</span>
+    <div style="color:#10b981;">📄 ยืนยันบันทึกใบเสร็จใหม่</div>
+    <p style="color:#334155;margin-top:20px;font-size:18px;">เลขที่: <b id="newIdNew" style="color:#10b981;"></b></p>
+    <button id="btnConfirmSaveNew" class="modal-btn btn-save" style="margin-top:20px;" onclick="executeSaveNew()">ยืนยันบันทึก</button>
+    <button class="modal-btn btn-back" onclick="closeModal('confirmSaveAsNewModal')">กลับ</button>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// GLOBALS
+// ==========================================
+var currentPrintLang  = 'TH';
+var allCourseData     = [];
+var allPaymentData    = [];
+var allReceipts       = [];
+var allPTData         = []; // ⚡ PT ทั้งหมด โหลดครั้งเดียว → lookup 0ms
+var currentLoadedData = null;
+var tempEditData      = null;
+var _custFilterInit   = false; // ⚡ flag: init customer filters แค่ครั้งแรก
+var _courseOptsCache  = null;  // ⚡ cache course <option> HTML
+var _searchIdx        = [];    // ⚡ pre-built search strings
+
+// ⚡ DOM cache — getElementById ครั้งเดียวต่อ id
+var _domCache = {};
+function $(id) { return _domCache[id] || (_domCache[id] = document.getElementById(id)); }
+
+// ==========================================
+// UTILITY — Numbers & Strings
+// ==========================================
+function nc(x)  { if (x == null || x === '') return ''; return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function rc(x)  { if (x == null || x === '') return ''; return x.toString().replace(/,/g, ''); }
+function esc(v) { return v == null ? '' : String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esn(v) { if (v === '' || v == null) return ''; var n = Number(rc(v)); return isNaN(n) ? esc(v) : n.toLocaleString(); }
+function gv(a,i){ return a && a[i] != null ? esc(a[i]) : ''; }
+function gn(a,i){ if (!a || a[i] == null || a[i] === '') return ''; var n=Number(rc(a[i])); return isNaN(n)?'':n.toLocaleString(); }
+
+// ⚡ isDiff ทำ removeCommas ก่อนเทียบ → ป้องกัน "10,000" ≠ "10000" false alarm
+function isDiff(a, b) {
+  return rc(String(a == null ? '' : a).trim()) !== rc(String(b == null ? '' : b).trim());
+}
+
+// ==========================================
+// DEBOUNCE
+// ==========================================
+function debounce(fn, ms) {
+  var t; return function() { var a=arguments; clearTimeout(t); t=setTimeout(function(){ fn.apply(null,a); }, ms||300); };
+}
+var debounceFilterCustomer = debounce(filterCustomerTable, 300);
+var debounceFetchPT        = debounce(fetchPTPreview, 0); // ⚡ 0ms instant
+var debounceCalcRow        = debounce(calculateRowTotal, 120);
+var debounceCalcGrand      = debounce(calcGrandTotal, 120);
+
+// ⚡ เรียกตอน date เปลี่ยน — instant, 0ms, ไม่ call server
+function _previewReceiptId() {
+  var id = _clientNextId($('receiptDate').value);
+  if (id) $('receiptNo').value = id;
+}
+
+// client-side preview ID (ES5-safe, ใช้สำหรับแสดง preview เท่านั้น)
+// ⚡ สร้าง course option HTML ครั้งเดียว — invalidate เมื่อ course data เปลี่ยน
+// ⚡ pre-build search strings ครั้งเดียว ใช้ซ้ำใน filterCustomerTable
+function _buildSearchIdx() {
+  _searchIdx = [];
+  for (var _s = 0; _s < allReceipts.length; _s++) {
+    var r = allReceipts[_s];
+    _searchIdx.push(((r.id||'') + ' ' + (r.fullName||'') + ' ' + (r.nickname||'')).toLowerCase());
+  }
+}
+
+function _getCourseBaseOpts() {
+  if (_courseOptsCache) return _courseOptsCache;
+  var h = '<option value="" disabled selected>- เลือกคอร์ส -</option>';
+  var seen = {}, names = [];
+  for (var i = 0; i < allCourseData.length; i++) {
+    var n = allCourseData[i].name;
+    if (!seen[n]) { seen[n] = true; names.push(n); }
+  }
+  for (var i = 0; i < names.length; i++) {
+    h += '<option value="' + esc(names[i]) + '">' + esc(names[i]) + '</option>';
+  }
+  _courseOptsCache = h;
+  return h;
+}
+
+function _clientNextId(dateStr) {
+  try {
+    var d  = dateStr ? new Date(dateStr) : new Date();
+    var yy = d.getFullYear().toString().slice(-2);
+    var mm = ('0' + (d.getMonth() + 1)).slice(-2);
+    var prefix = 'RE' + mm + yy + '-';
+    var max = 0;
+    for (var i = 0; i < allReceipts.length; i++) {
+      var rid = (allReceipts[i].id || '').toString();
+      if (rid.indexOf(prefix) === 0) {          // ES5-safe แทน startsWith
+        var n = parseInt(rid.split('-')[1]);
+        if (!isNaN(n) && n > max) max = n;
+      }
+    }
+    var next = max + 1;
+    return prefix + (next < 10 ? '0' + next : '' + next); // ES5-safe แทน padStart
+  } catch (e) { return ''; }
+}
+
+// ==========================================
+// LOGIN & SESSION
+// ==========================================
+window.onload = function() {
+  if (sessionStorage.getItem('isLoggedIn') === 'true') showApp();
+  else $('login-overlay').style.display = 'flex';
+};
+
+function doLogin() {
+  var user = $('loginUsername').value;
+  var pass = $('loginPassword').value;
+  var btn  = document.querySelector('.login-btn');
+  $('loginError').style.display = 'none';
+  btn.innerText = 'กำลังตรวจสอบ...'; btn.disabled = true;
+  google.script.run.withSuccessHandler(function(ok) {
+    if (ok) {
+      sessionStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('username', user);
+      showApp();
+    } else {
+      $('loginError').style.display = 'block';
+      btn.innerText = 'เข้าใช้งาน'; btn.disabled = false;
+    }
+  }).checkLogin(user, pass);
+}
+
+// ⚡ 1 server call รับข้อมูลทุกอย่างพร้อมกัน (cache-hit = ~50ms)
+function showApp() {
+  $('login-overlay').style.display = 'none';
+  $('main-app').style.display = 'block';
+  $('receiptDate').value = '';
+
+  google.script.run.withSuccessHandler(function(d) {
+    allCourseData  = d.courses;
+    allPaymentData = d.payments;
+    allReceipts    = d.receipts;
+    allPTData      = d.ptData || [];
+    _buildSearchIdx(); // ⚡ pre-index ทันที
+
+    $('receiptNo').value = d.nextId; // ⚡ set ทันทีโดยไม่ต้อง call แยก
+
+    addCourseRow('main');
+    initPaymentDropdowns();
+    initSearchDropdowns();
+    initPrintSearchDropdowns();
+    filterSearch();
+    filterPrintSearch();
+    checkFormValidity();
+  }).getInitData();
+}
+
+// ==========================================
+// TAB MANAGEMENT
+// ==========================================
+// ⚡ direct getElementById — เร็วกว่า querySelectorAll forEach
+var _allTabs = ['tab-receipt','tab-print','tab-customer'];
+function switchTab(tabId) {
+  for (var _t = 0; _t < _allTabs.length; _t++) {
+    document.getElementById(_allTabs[_t]).classList.remove('active');
+    document.getElementById('btn-' + _allTabs[_t]).classList.remove('active');
+  }
+  document.getElementById(tabId).classList.add('active');
+  document.getElementById('btn-' + tabId).classList.add('active');
+  if (tabId === 'tab-customer') {
+    if (!_custFilterInit) { initCustomerFilters(); _custFilterInit = true; } // ⚡ init แค่ครั้งแรก
+    filterCustomerTable();
+  }
+  if (tabId === 'tab-print') { filterPrintSearch(); updatePrintPreview(); }
+}
+
+// ==========================================
+// REFRESH
+// ==========================================
+function refreshAllData() {
+  // ✅ Fix 1: ยกเว้น #btnRefresh (ปุ่มเลขใบเสร็จ) — ไม่ควร disable ตาม data refresh
+  var btns = document.querySelectorAll('.btn-refresh:not(#btnRefresh), .btn-refresh-sm');
+  btns.forEach(function(b) { b.disabled = true; });
+  _resetSearchBadges();
+
+  function _done(receipts) {
+    if (receipts) { allReceipts = receipts; _buildSearchIdx(); } // ⚡
+    _custFilterInit = false;
+    initCustomerFilters();
+    _custFilterInit = true;
+    initSearchDropdowns();
+    initPrintSearchDropdowns();
+    filterSearch();
+    filterPrintSearch();
+    if (document.getElementById('tab-customer').classList.contains('active')) filterCustomerTable();
+    if (!$('searchId').value) generateNewReceiptId();
+    btns.forEach(function(b) { b.disabled = false; });
+  }
+
+  google.script.run
+    .withSuccessHandler(function(d) { _done(d); })
+    .withFailureHandler(function()  { _done(null); }) // ✅ Fix 1: ถ้า error ก็ re-enable ปุ่มเสมอ
+    .getReceiptList();
+}
+
+// ⚡ sync UI dropdowns จาก allReceipts ที่มีอยู่แล้ว — ไม่ต้อง call server
+function _syncAllDropdowns() {
+  _custFilterInit = false;
+  initCustomerFilters();
+  _custFilterInit = true;
+  initSearchDropdowns();
+  initPrintSearchDropdowns();
+  filterSearch();
+  filterPrintSearch();
+  if (document.getElementById('tab-customer').classList.contains('active')) filterCustomerTable();
+}
+
+// alias สำหรับ backward-compat กับปุ่มต่างๆ
+var refreshSearchIDsOnly = refreshAllData;
+var refreshPrintData     = refreshAllData;
+
+function refreshAllTabs() {
+  refreshAllData();
+}
+
+// ==========================================
+// CUSTOMER TABLE — ⚡ Progressive rendering
+// แสดง 80 แถวแรกทันที ส่วนที่เหลือ render เป็น batch ใน rAF
+// ==========================================
+function initCustomerFilters() {
+  var years = [...new Set(allReceipts.map(function(r) { return r.year; }))].sort();
+  var yS = $('custYear');
+  var yH = '<option value="-">-</option><option value="All">ทั้งหมด</option>';
+  years.forEach(function(y) { yH += '<option value="' + y + '">' + y + '</option>'; });
+  yS.innerHTML = yH;
+
+  var mS = $('custMonth');
+  var mH = '<option value="-">-</option><option value="All">ทั้งหมด</option>';
+  ['01','02','03','04','05','06','07','08','09','10','11','12'].forEach(function(m) { mH += '<option value="'+m+'">'+m+'</option>'; });
+  mS.innerHTML = mH;
+}
+
+function _buildTableRows(arr) {
+  var rows = '';
+  for (var i = 0; i < arr.length; i++) {
+    var r = arr[i];
+    var sC = r.status === 'Cancel' ? '#ef4444' : '#166534';
+    var sB = r.status === 'Cancel' ? '#fee2e2' : '#dcfce7';
+    rows += '<tr>'
+      + '<td>'+esc(r.id)+'</td><td>'+esc(r.date)+'</td><td>'+esc(r.placementNo)+'</td>'
+      + '<td>'+esc(r.fullName)+'</td><td>'+(esc(r.nickname)||'-')+'</td><td>'+esc(r.tel)+'</td>'
+      + '<td>'+gv(r.courses,0)+'</td><td>'+gv(r.courses,1)+'</td><td>'+gv(r.courses,2)+'</td><td>'+gv(r.courses,3)+'</td>'
+      + '<td>'+gv(r.hours,0)+'</td><td>'+gv(r.hours,1)+'</td><td>'+gv(r.hours,2)+'</td><td>'+gv(r.hours,3)+'</td>'
+      + '<td>'+gn(r.prices,0)+'</td><td>'+gn(r.prices,1)+'</td><td>'+gn(r.prices,2)+'</td><td>'+gn(r.prices,3)+'</td>'
+      + '<td style="font-weight:bold;">'+esn(r.sumPrice)+'</td>'
+      + '<td>'+gn(r.discounts,0)+'</td><td>'+gn(r.discounts,1)+'</td><td>'+gn(r.discounts,2)+'</td><td>'+gn(r.discounts,3)+'</td>'
+      + '<td style="color:red;">'+esn(r.sumDiscount)+'</td>'
+      + '<td>'+gn(r.nets,0)+'</td><td>'+gn(r.nets,1)+'</td><td>'+gn(r.nets,2)+'</td><td>'+gn(r.nets,3)+'</td>'
+      + '<td style="font-weight:bold;color:green;">'+esn(r.grandTotal)+'</td>'
+      + '<td>'+esn(r.specialDiscount)+'</td>'
+      + '<td>'+esc(r.paymentMethod)+'</td><td>'+esc(r.bank)+'</td><td>'+esc(r.account)+'</td><td>'+esc(r.remark)+'</td>'
+      + '<td>'+esc(r.studentStatus)+'</td>'
+      + '<td style="text-align:center;"><span style="background:'+sB+';color:'+sC+';padding:2px 8px;border-radius:4px;font-size:12px;font-weight:bold;">'+esc(r.status)+'</span></td>'
+      + '</tr>';
+  }
+  return rows;
+}
+
+function filterCustomerTable() {
+  var y   = $('custYear').value;
+  var m   = $('custMonth').value;
+  var txt = $('custSearch').value.toLowerCase();
+  var tbody = $('customerTableBody');
+
+  if ((y === '-' || m === '-') && txt === '') {
+    tbody.innerHTML = "<tr><td colspan='40' class='text-center' style='padding:20px;color:#94a3b8;'>กรุณาเลือก ปี/เดือน หรือเลือก 'ทั้งหมด' เพื่อแสดงข้อมูล</td></tr>";
+    return;
+  }
+
+  // ⚡ ใช้ _searchIdx ที่ pre-built แล้ว — indexOf เร็วกว่า includes + ไม่ build string ใหม่
+  var filtered = allReceipts.filter(function(r, _fi) {
+    if (txt !== '') return _searchIdx[_fi] && _searchIdx[_fi].indexOf(txt) !== -1;
+    return (y === 'All' || r.year == y) && (m === 'All' || r.month == m);
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = "<tr><td colspan='40' class='text-center' style='padding:20px;'>ไม่พบข้อมูล</td></tr>";
+    return;
+  }
+
+  var INIT = 80; // ⚡ แสดง 80 แถวแรกทันที
+  tbody.innerHTML = _buildTableRows(filtered.slice(0, INIT));
+
+  // ⚡ Progressive: render แถวที่เหลือเป็น batch ใน rAF ไม่ block UI
+  if (filtered.length > INIT) {
+    (function renderNext(idx) {
+      if (idx >= filtered.length) return;
+      var batch = filtered.slice(idx, idx + 120);
+      tbody.insertAdjacentHTML('beforeend', _buildTableRows(batch));
+      requestAnimationFrame(function() { renderNext(idx + 120); });
+    })(INIT);
+  }
+
+  // ⚡ sync scroll bar หลัง render เสร็จ
+  requestAnimationFrame(function() {
+    var table     = document.querySelector('#realTable table');
+    var topScroll = $('topScroll');
+    var topCont   = $('topScrollContent');
+    var realTbl   = $('realTable');
+    if (table && topCont) {
+      topCont.style.width = table.offsetWidth + 'px';
+      topScroll.onscroll  = function() { realTbl.scrollLeft = this.scrollLeft; };
+      realTbl.onscroll    = debounce(function() { topScroll.scrollLeft = realTbl.scrollLeft; }, 80);
+    }
+  });
+}
+
+// ==========================================
+// PRINT LOGIC
+// ==========================================
+function changePrintLang(lang) {
+  currentPrintLang = lang;
+  var isTH = lang === 'TH';
+  $('btnLangTH').style.cssText = 'border:none;padding:8px 15px;cursor:pointer;font-weight:bold;background:' + (isTH ? '#3b82f6' : 'white') + ';color:' + (isTH ? 'white' : '#334155') + ';';
+  $('btnLangEN').style.cssText = 'border:none;padding:8px 15px;cursor:pointer;font-weight:bold;background:' + (isTH ? 'white' : '#3b82f6') + ';color:' + (isTH ? '#334155' : 'white') + ';';
+  updatePrintPreview();
+}
+
+// ⚡ Build HTML string ก่อนแล้ว assign ครั้งเดียว — เร็วกว่า innerHTML += loop
+function initPrintSearchDropdowns() {
+  var years = [...new Set(allReceipts.filter(function(r) { return r.status === 'Active'; }).map(function(r) { return r.year; }))].sort();
+  var h = '<option value="">-</option>';
+  years.forEach(function(y) { h += '<option value="'+y+'">'+y+'</option>'; });
+  $('p_searchYear').innerHTML = h;
+}
+
+function filterPrintSearch() {
+  var y   = $('p_searchYear').value;
+  var mS  = $('p_searchMonth');
+  var idS = $('p_searchId');
+  if (!y) { mS.innerHTML = '<option value="">-</option>'; idS.innerHTML = '<option value="">- เลือก -</option>'; updatePrintPreview(); return; }
+
+  var curM = mS.value;
+  var months = [...new Set(allReceipts.filter(function(r) { return r.year == y && r.status === 'Active'; }).map(function(r) { return r.month; }))].sort();
+  var mH = '<option value="">-</option>';
+  months.forEach(function(m) { mH += '<option value="'+m+'">'+m+'</option>'; });
+  mS.innerHTML = mH;
+  if (months.includes(curM)) mS.value = curM;
+
+  var m   = mS.value;
+  var idH = '<option value="">- เลือก -</option>';
+  if (y && m) {
+    allReceipts.filter(function(r) { return r.year == y && r.month == m && r.status === 'Active'; })
+               .forEach(function(r) { idH += '<option value="'+r.id+'">'+r.id+'</option>'; });
+  }
+  idS.innerHTML = idH;
+  updatePrintPreview();
+}
+
+function updatePrintPreview() {
+  var id  = $('p_searchId').value;
+  var doc = $('previewFrame').contentWindow.document;
+  if (!id) {
+    doc.open(); doc.write("<body style='font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100%;color:#888;'><h3>⬅️ กรุณาเลือกใบเสร็จด้านบน</h3></body>"); doc.close(); return;
+  }
+  var rec = allReceipts.find(function(r) { return r.id === id; });
+  if (rec && rec.status === 'Cancel') {
+    doc.open(); doc.write("<body style='font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100%;color:#ef4444;'><h3>❌ ใบเสร็จนี้ถูกยกเลิก ไม่สามารถพิมพ์ได้</h3></body>"); doc.close(); return;
+  }
+  doc.open(); doc.write("<body style='font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100%;color:#3b82f6;'><h3>⏳ กำลังสร้างใบเสร็จ ("+currentPrintLang+")...</h3></body>"); doc.close();
+  google.script.run.withSuccessHandler(function(html) {
+    var d = $('previewFrame').contentWindow.document; d.open(); d.write(html); d.close();
+  }).getPrintHtml(id, currentPrintLang);
+}
+
+function printIframe() {
+  try { var w = $('previewFrame').contentWindow; w.focus(); w.print(); } catch(e) { alert('เกิดข้อผิดพลาดในการพิมพ์'); }
+}
+
+// ==========================================
+// SEARCH DROPDOWNS
+// ==========================================
+function _resetSearchBadges() {
+  $('searchId').value = '';
+  ['displayStatus','displayName','displayNick'].forEach(function(id) {
+    $(id).className = 'badge-display badge-empty'; $(id).innerText = 'กรุณาเลือกใบเสร็จ';
+  });
+}
+
+// ⚡ Build string ก่อน assign ครั้งเดียว
+function initSearchDropdowns() {
+  var years = [...new Set(allReceipts.map(function(r) { return r.year; }))].sort();
+  var h = '<option value="">-</option>';
+  years.forEach(function(y) { h += '<option value="'+y+'">'+y+'</option>'; });
+  $('searchYear').innerHTML = h;
+}
+
+function filterSearch() {
+  var y   = $('searchYear').value;
+  var mS  = $('searchMonth');
+  var idS = $('searchId');
+  if (!y) { mS.innerHTML = '<option value="">-</option>'; idS.innerHTML = '<option value="">-</option>'; return; }
+
+  var curM   = mS.value;
+  var months = [...new Set(allReceipts.filter(function(r) { return r.year == y; }).map(function(r) { return r.month; }))].sort();
+  var mH = '<option value="">-</option>';
+  months.forEach(function(m) { mH += '<option value="'+m+'">'+m+'</option>'; });
+  mS.innerHTML = mH;
+  if (months.includes(curM)) mS.value = curM;
+
+  var m   = mS.value;
+  var idH = '<option value="">-</option>';
+  if (y && m) {
+    allReceipts.filter(function(r) { return r.year == y && r.month == m; })
+               .forEach(function(r) { idH += '<option value="'+r.id+'">'+r.id+'</option>'; });
+  }
+  idS.innerHTML = idH;
+}
+
+function updateSearchInfo() {
+  var id = $('searchId').value;
+  if (!id) { _resetSearchBadges(); checkFormValidity(); return; }
+  var rec = allReceipts.find(function(r) { return r.id === id; });
+  if (rec) {
+    var cls = 'badge-display ' + (rec.status === 'Active' ? 'badge-active' : 'badge-cancel');
+    $('displayStatus').className = cls; $('displayStatus').innerText = rec.status;
+    $('displayName').className   = cls; $('displayName').innerText   = rec.fullName;
+    $('displayNick').className   = cls; $('displayNick').innerText   = rec.nickname || '-';
+    checkFormValidity();
+  }
+}
+
+// ==========================================
+// FORM VALIDITY
+// ==========================================
+// ⚡ for-loop แทน Array.from+every+some — เร็วกว่า ~3x เรียกทุก input event
+var _validFields = ['customerName','address','tel','studentStatus','receiptDate'];
+function checkFormValidity() {
+  var hasBasic = true;
+  for (var _i = 0; _i < _validFields.length; _i++) {
+    if (!document.getElementById(_validFields[_i]).value) { hasBasic = false; break; }
+  }
+  var _rows = $('courseTableBody').getElementsByClassName('course-select');
+  var hasCourse = false;
+  for (var _j = 0; _j < _rows.length; _j++) { if (_rows[_j].value) { hasCourse = true; break; } }
+  var hasPayment = !!$('paymentMethod').value;
+  var sid = $('searchId').value;
+  var isCancelled = false;
+  if (sid) {
+    var rec = allReceipts.find(function(r) { return r.id === sid; });
+    if (rec && rec.status === 'Cancel') isCancelled = true;
+  }
+  $('btnSave').disabled   = !!sid || !(hasBasic && hasCourse && hasPayment);
+  $('btnUpdate').disabled = !sid || isCancelled;
+  $('btnCancel').disabled = !sid || isCancelled;
+}
+
+// ==========================================
+// RECEIPT ID
+// ==========================================
+function generateNewReceiptId() {
+  // ✅ Fix: call server โดยตรง — client-side อาจ error เงียบ หรือข้อมูลเก่า
+  var btn = $('btnRefresh');
+  btn.disabled = true;
+  var dateVal = $('receiptDate').value || '';
+  google.script.run
+    .withSuccessHandler(function(id) {
+      $('receiptNo').value = id;
+      var el = document.getElementById('editingLabel');
+      if (el) el.style.display = 'none';
+      btn.disabled = false;
+    })
+    .withFailureHandler(function() { btn.disabled = false; })
+    .getNextReceiptNumber(dateVal);
+}
+
+// ==========================================
+// SAVE NEW
+// ==========================================
+// ⚡ กด "บันทึก" → แสดง ID preview ทันที (client-side), ไม่รอ server
+function prepareSaveNew() {
+  if ($('btnSave').disabled) return;
+  var previewId = _clientNextId($('receiptDate').value);
+  $('newIdNew').innerText = previewId;
+  $('confirmSaveAsNewModal').style.display = 'flex';
+}
+
+function executeSaveNew() {
+  var btn = $('btnConfirmSaveNew');
+  btn.innerText = 'กำลังบันทึก...'; btn.disabled = true;
+  var data = gatherFormData('main');
+  var user = sessionStorage.getItem('username') || 'Unknown';
+  google.script.run.withSuccessHandler(function(res) {
+    alert(res.msg);
+    closeModal('confirmSaveAsNewModal');
+    btn.innerText = 'ยืนยันบันทึก'; btn.disabled = false;
+    // ⚡ server ส่ง fresh list กลับมาพร้อมกัน — ไม่ต้อง call refresh แยก
+    if (res.receipts) {
+      allReceipts = res.receipts;
+      _buildSearchIdx();
+    }
+    clearData();
+    if (res.nextId) $('receiptNo').value = res.nextId;
+    _syncAllDropdowns();
+  }).saveNewReceipt(data, user);
+}
+
+// ==========================================
+// EDIT — ⚡ ใช้ข้อมูลจาก allReceipts client-side (0 server call!)
+// ==========================================
+function prepareEdit() {
+  var id = $('searchId').value;
+  if (!id) return;
+
+  // ⚡ หาข้อมูลจาก client cache แทนการ call server (ประหยัด ~1-2 วินาที)
+  var rec = allReceipts.find(function(r) { return r.id === id; });
+  if (!rec) { alert('ไม่พบข้อมูล'); return; }
+
+  currentLoadedData = {
+    receiptNo:    rec.id,
+    date:         rec.dateISO,      // ⚡ dateISO มาจาก getReceiptList แล้ว
+    placementNo:  rec.placementNo   || '',
+    customerName: rec.fullName      || '',
+    nickname:     rec.nickname      || '',
+    taxId:        rec.taxId         || '',
+    address:      rec.address       || '',
+    tel:          rec.tel           || '',
+    studentStatus:rec.studentStatus || '',
+    courses:      rec.courses,
+    hours:        rec.hours,
+    prices:       rec.prices,
+    discounts:    rec.discounts,
+    nets:         rec.nets,
+    sumPrice:     rec.sumPrice,
+    sumDiscount:  rec.sumDiscount,
+    specialDiscount: rec.specialDiscount || '',
+    grandTotal:   rec.grandTotal,
+    paymentMethod:rec.paymentMethod || '',
+    bank:         rec.bank          || '',
+    account:      rec.account       || '',
+    remark:       rec.remark        || ''
+  };
+
+  _populateEditModal(currentLoadedData);
+}
+
+function _populateEditModal(data) {
+  $('edit_receiptNo_Display').innerText = data.receiptNo;
+  $('edit_receiptDate').value     = data.date;
+  $('edit_placementNo').value     = data.placementNo;
+  $('edit_customerName').value    = data.customerName;
+  $('edit_nickname').value        = data.nickname;
+  $('edit_taxId').value           = data.taxId;
+  $('edit_address').value         = data.address;
+  $('edit_tel').value             = data.tel;
+  $('edit_studentStatus').value   = data.studentStatus;
+
+  var tbody = $('edit_courseTableBody');
+  tbody.innerHTML = '';
+  for (var i = 0; i < data.courses.length; i++) {
+    if (data.courses[i]) {
+      addCourseRow('edit', {
+        name:     data.courses[i],
+        hour:     data.hours[i],
+        price:    rc(data.prices[i]),    // ⚡ rc() เพื่อแปลง "10,000" → "10000" ก่อน numberWithCommas
+        discount: rc(data.discounts[i]),
+        net:      rc(data.nets[i])
+      });
+    }
+  }
+  if (tbody.children.length === 0) addCourseRow('edit');
+
+  $('edit_specialDiscount').value = nc(rc(data.specialDiscount));
+  $('edit_paymentMethod').innerHTML = $('paymentMethod').innerHTML;
+  $('edit_paymentMethod').value = data.paymentMethod;
+  updateBanks('edit');
+  $('edit_bankSelect').value = data.bank;
+  updateAccounts('edit');
+  $('edit_accountSelect').value = data.account;
+  $('edit_remark').value = data.remark;
+
+  calcGrandTotal('edit');
+  $('editInputModal').style.display = 'flex';
+}
+
+function saveEditPreview() {
+  var btn = $('btnSaveEditPreview');
+  btn.innerText = 'กำลังประมวลผล...'; btn.disabled = true;
+  tempEditData = gatherFormData('edit');
+  tempEditData.receiptNo = currentLoadedData.receiptNo;
+
+  var diff = '';
+  var simpleKeys = {
+    date:'วันที่', placementNo:'PT No.', customerName:'ชื่อ-นามสกุล', nickname:'ชื่อเล่น',
+    taxId:'เลขผู้เสียภาษี', address:'ที่อยู่', tel:'เบอร์โทร', studentStatus:'สถานะ นร.'
+  };
+  Object.keys(simpleKeys).forEach(function(k) {
+    if (isDiff(currentLoadedData[k], tempEditData[k])) diff += createDiffRow(simpleKeys[k], currentLoadedData[k], tempEditData[k]);
+  });
+
+  for (var i = 0; i < 4; i++) {
+    [
+      ['คอร์สที่ '+(i+1)+': ชื่อ',    currentLoadedData.courses[i],   tempEditData.courses.names[i]],
+      ['คอร์สที่ '+(i+1)+': ชม.',      currentLoadedData.hours[i],     tempEditData.courses.hours[i]],
+      ['คอร์สที่ '+(i+1)+': ราคา',     currentLoadedData.prices[i],    tempEditData.courses.prices[i]],
+      ['คอร์สที่ '+(i+1)+': ส่วนลด',   currentLoadedData.discounts[i], tempEditData.courses.discounts[i]],
+      ['คอร์สที่ '+(i+1)+': ยอดสุทธิ', currentLoadedData.nets[i],      tempEditData.courses.nets[i]]
+    ].forEach(function(c) { if (isDiff(c[1]||'', c[2]||'')) diff += createDiffRow(c[0], c[1], c[2]); });
+  }
+
+  [
+    ['ช่องทางชำระ', currentLoadedData.paymentMethod, tempEditData.paymentMethod],
+    ['ธนาคาร',      currentLoadedData.bank,           tempEditData.bank],
+    ['ชื่อบัญชี',   currentLoadedData.account,        tempEditData.account],
+    ['หมายเหตุ',    currentLoadedData.remark,          tempEditData.remark],
+    ['ยอดรวม',      currentLoadedData.sumPrice,        tempEditData.sumPrice],
+    ['ส่วนลดรวม',   currentLoadedData.sumDiscount,     tempEditData.sumDiscount],
+    ['ลดพิเศษ',     currentLoadedData.specialDiscount, tempEditData.specialDiscount],
+    ['รวมสุทธิ',    currentLoadedData.grandTotal,      tempEditData.grandTotal]
+  ].forEach(function(c) { if (isDiff(c[1], c[2])) diff += createDiffRow(c[0], c[1], c[2]); });
+
+  if (!diff) diff = "<tr><td colspan='3' class='text-center'>ไม่มีข้อมูลสำคัญเปลี่ยนแปลง</td></tr>";
+  $('diffTableBody').innerHTML = diff;
+
+  // ⚡ ลบ setTimeout 200ms ที่ไม่จำเป็น — ทำงานทันที
+  btn.innerText = 'บันทึกการแก้ไข'; btn.disabled = false;
+  $('editInputModal').style.display    = 'none';
+  $('confirmUpdateModal').style.display = 'flex';
+  $('updateTitleId').innerText = tempEditData.receiptNo;
+}
+
+function confirmEdit() {
+  var btn = $('btnConfirmEdit'); var back = $('btnBackEdit');
+  btn.innerText = 'กำลังบันทึก...'; btn.disabled = true; back.disabled = true;
+  var user = sessionStorage.getItem('username') || 'Unknown';
+  google.script.run.withSuccessHandler(function(res) {
+    alert(res.msg);
+    closeModal('confirmUpdateModal');
+    btn.innerText = 'ยืนยัน'; btn.disabled = false; back.disabled = false;
+    // ⚡ server ส่ง fresh list กลับมาพร้อมกัน
+    if (res.receipts) { allReceipts = res.receipts; _buildSearchIdx(); }
+    clearData();
+    _syncAllDropdowns();
+  }).updateReceiptData(tempEditData, user);
+}
+
+function backToEdit() { $('confirmUpdateModal').style.display = 'none'; $('editInputModal').style.display = 'flex'; }
+
+// ==========================================
+// CANCEL
+// ==========================================
+function prepareCancel() {
+  var id = $('searchId').value; if (!id) return;
+  $('cancelTargetId').innerText = id;
+  $('btnConfirmCancel').disabled = false; $('btnConfirmCancel').innerText = 'ยืนยันยกเลิก';
+  $('btnBackCancel').disabled = false;
+  $('confirmCancelModal').style.display = 'flex';
+}
+
+function executeCancel() {
+  var btn = $('btnConfirmCancel'); var back = $('btnBackCancel');
+  btn.disabled = true; btn.innerText = 'กำลังยกเลิก...'; back.disabled = true;
+  var user = sessionStorage.getItem('username') || 'Unknown';
+  google.script.run.withSuccessHandler(function(res) {
+    alert(res.msg);
+    closeModal('confirmCancelModal');
+    // ⚡ server ส่ง fresh list กลับมาพร้อมกัน
+    if (res.receipts) { allReceipts = res.receipts; _buildSearchIdx(); }
+    clearData();
+    _syncAllDropdowns();
+  }).cancelReceipt($('cancelTargetId').innerText, user);
+}
+
+// ==========================================
+// CLEAR FORM
+// ==========================================
+// ⚡ direct field reset แทน querySelectorAll (เร็วกว่า ~5x)
+var _clearFields = ['receiptDate','placementNo','customerName','nickname','taxId','address','tel','specialDiscount','remark'];
+function clearData() {
+  for (var _f = 0; _f < _clearFields.length; _f++) { document.getElementById(_clearFields[_f]).value = ''; }
+  $('studentStatus').value = ''; $('paymentMethod').value = '';
+  $('bankSelect').innerHTML = '<option value="">-</option>';
+  $('accountSelect').innerHTML = '<option value="">-</option>';
+  $('courseTableBody').innerHTML = '';
+  addCourseRow('main');
+  $('sumPriceDisplay').value = '0'; $('sumDiscountDisplay').value = '0';
+  $('grandTotal').value = '0'; $('specialDiscount').value = '';
+  _resetSearchBadges();
+  clearPTPlaceholders();
+  currentLoadedData = null;
+  // แสดง preview client-side ก่อน (เร็ว) แล้วปุ่ม refresh จะได้เลขจริงเมื่อกด
+  $('receiptNo').value = _clientNextId('');
+  checkFormValidity();
+}
+
+// ==========================================
+// COURSE TABLE
+// ==========================================
+function addCourseRow(prefix, data) {
+  var tbody = $(prefix === 'main' ? 'courseTableBody' : 'edit_courseTableBody');
+  if (tbody.children.length >= 4) return;
+
+  var idx  = tbody.children.length + 1;
+  // ⚡ ใช้ cache — rebuild เฉพาะตอน data เปลี่ยน (ไม่ build ทุกครั้ง)
+  var baseOpts = _getCourseBaseOpts();
+  var opts = baseOpts;
+  if (data && data.name) {
+    opts = opts.replace('value="' + esc(data.name) + '"', 'value="' + esc(data.name) + '" selected');
+  }
+
+  var d = data || {};
+  var p = prefix;
+  var tr = document.createElement('tr');
+  tr.className = 'course-row';
+  tr.innerHTML =
+    '<td class="text-center row-num">' + idx + '</td>'
+    + '<td><select class="course-select" onchange="onCourseChange(this,\'' + p + '\')' + (p==='main'?'; checkFormValidity()':'') + '">' + opts + '</select></td>'
+    + '<td><input type="number" class="course-hours text-center" value="' + (d.hour||'') + '" oninput="autoMatchPrice(this,\'' + p + '\')"></td>'
+    + '<td><input type="text" class="course-price text-center" value="' + (d.price ? nc(d.price) : '') + '" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');" onblur="this.value=nc(this.value); debounceCalcRow(this,\'' + p + '\')"></td>'
+    + '<td class="bg-pink"><input type="text" class="course-discount text-center" value="' + (d.discount ? nc(d.discount) : '') + '" oninput="this.value=this.value.replace(/[^0-9]/g,\'\');" onblur="this.value=nc(this.value); debounceCalcRow(this,\'' + p + '\')"></td>'
+    + '<td class="bg-normal"><input type="text" class="course-total text-center" value="' + (d.net ? nc(d.net) : '') + '" readonly></td>'
+    + '<td class="text-center"><button class="btn-delete" onclick="removeCourseRow(this,\'' + p + '\')">🗑️</button></td>';
+
+  tbody.appendChild(tr);
+  if (prefix === 'main') { checkFormValidity(); $('btnAddRow').disabled = (tbody.children.length >= 4); }
+  if (data && (data.price || data.discount)) calculateRowTotal(tr.querySelector('.course-price'), prefix);
+}
+
+function removeCourseRow(btn, prefix) {
+  var tbodyId = prefix === 'main' ? 'courseTableBody' : 'edit_courseTableBody';
+  btn.closest('tr').remove();
+  document.querySelectorAll('#' + tbodyId + ' .row-num').forEach(function(el, i) { el.innerText = i + 1; });
+  calcGrandTotal(prefix);
+  if (prefix === 'main') { checkFormValidity(); $('btnAddRow').disabled = ($(tbodyId).children.length >= 4); }
+}
+
+function onCourseChange(sel, prefix) {
+  var row  = sel.closest('tr');
+  var name = sel.value;
+  row.querySelector('.course-hours').value = '';
+  row.querySelector('.course-price').value = '';
+  if (name) {
+    var match = allCourseData.find(function(d) { return d.name === name; });
+    if (match) { row.querySelector('.course-hours').value = match.hours; row.querySelector('.course-price').value = nc(match.price.toString()); }
+  }
+  calculateRowTotal(sel, prefix);
+}
+
+function autoMatchPrice(input, prefix) {
+  var row   = input.closest('tr');
+  var name  = row.querySelector('.course-select').value;
+  var hours = parseFloat(input.value);
+  if (name && !isNaN(hours)) {
+    var exact = allCourseData.find(function(d) { return d.name === name && d.hours == hours; });
+    if (exact) { row.querySelector('.course-price').value = nc(exact.price.toString()); }
+    else {
+      var unit = allCourseData.find(function(d) { return d.name === name && d.hours == 1; });
+      if (unit) row.querySelector('.course-price').value = nc((unit.price * hours).toFixed(0));
+    }
+  }
+  calculateRowTotal(input, prefix);
+}
+
+function calculateRowTotal(el, prefix) {
+  var row      = el.closest('tr');
+  var price    = parseFloat(rc(row.querySelector('.course-price').value))    || 0;
+  var discount = parseFloat(rc(row.querySelector('.course-discount').value)) || 0;
+  row.querySelector('.course-total').value = nc((price - discount).toFixed(0));
+  debounceCalcGrand(prefix);
+}
+
+function calcGrandTotal(prefix) {
+  var pfx   = prefix === 'edit' ? 'edit_' : '';
+  var tbody = $(prefix === 'edit' ? 'edit_courseTableBody' : 'courseTableBody');
+  var tNet = 0, tDisc = 0, tPrice = 0;
+  tbody.querySelectorAll('.course-row').forEach(function(row) {
+    tNet   += parseFloat(rc(row.querySelector('.course-total').value))    || 0;
+    tDisc  += parseFloat(rc(row.querySelector('.course-discount').value)) || 0;
+    tPrice += parseFloat(rc(row.querySelector('.course-price').value))    || 0;
+  });
+  var special = parseFloat(rc($(pfx + 'specialDiscount').value)) || 0;
+  $(pfx + 'sumPriceDisplay').value    = nc(tPrice.toFixed(0));
+  $(pfx + 'sumDiscountDisplay').value = nc(tDisc.toFixed(0));
+  $(pfx + 'grandTotal').value         = nc((tNet - special).toFixed(0));
+}
+
+// ==========================================
+// PAYMENT DROPDOWNS — ⚡ string-build ก่อน assign ครั้งเดียว
+// ==========================================
+function initPaymentDropdowns() {
+  var methods = [...new Set(allPaymentData.map(function(i) { return i.method; }))];
+  var h = '<option value="">- เลือก -</option>';
+  methods.forEach(function(m) { if (m) h += '<option value="'+esc(m)+'">'+esc(m)+'</option>'; });
+  $('paymentMethod').innerHTML = h;
+  // edit_paymentMethod จะ copy จาก paymentMethod ตอน prepareEdit
+}
+
+function updateBanks(prefix) {
+  var pfx = prefix === 'edit' ? 'edit_' : '';
+  var mV  = $(pfx + 'paymentMethod').value;
+  var h   = '<option value="">-</option>';
+  if (mV) {
+    var banks = [...new Set(allPaymentData.filter(function(d) { return d.method === mV; }).map(function(d) { return d.bank; }))];
+    banks.forEach(function(b) { if (b) h += '<option value="'+esc(b)+'">'+esc(b)+'</option>'; });
+  }
+  $(pfx + 'bankSelect').innerHTML = h;
+  $(pfx + 'accountSelect').innerHTML = '<option value="">-</option>';
+}
+
+function updateAccounts(prefix) {
+  var pfx = prefix === 'edit' ? 'edit_' : '';
+  var mV  = $(pfx + 'paymentMethod').value;
+  var bV  = $(pfx + 'bankSelect').value;
+  var h   = '<option value="">-</option>';
+  if (bV) {
+    allPaymentData.filter(function(d) { return d.method === mV && d.bank === bV; })
+      .forEach(function(d) { if (d.account) h += '<option value="'+esc(d.account)+'">'+esc(d.account)+'</option>'; });
+  }
+  $(pfx + 'accountSelect').innerHTML = h;
+}
+
+// ==========================================
+// PT INFO
+// ==========================================
+function fetchPTPreview(val) {
+  // ⚡ Real-time: lookup จาก allPTData ใน memory — ไม่มี server call, 0ms
+  if (!val) { clearPTPlaceholders(); return; }
+  var n = parseInt(val);
+  if (!isNaN(n) && n >= 1 && n <= allPTData.length) {
+    var d = allPTData[n - 1];
+    $('customerName').placeholder = d.fullName;
+    $('nickname').placeholder     = d.nickname;
+    $('tel').placeholder          = d.tel;
+    $('address').placeholder      = d.address;
+  } else {
+    clearPTPlaceholders();
+  }
+}
+
+// ⚡ กด Enter หรือปุ่ม "ดึงข้อมูล" → lookup จาก allPTData ทันที 0ms
+function fetchPTAndApply(val) {
+  if (!val) return;
+  var n = parseInt(val);
+  if (!isNaN(n) && n >= 1 && n <= allPTData.length) {
+    var d = allPTData[n - 1];
+    if (!$('customerName').value) $('customerName').value = d.fullName;
+    if (!$('nickname').value)     $('nickname').value     = d.nickname;
+    if (!$('tel').value)          $('tel').value          = d.tel;
+    if (!$('address').value)      $('address').value      = d.address;
+    $('customerName').placeholder = d.fullName;
+    $('nickname').placeholder     = d.nickname;
+    $('tel').placeholder          = d.tel;
+    $('address').placeholder      = d.address;
+    checkFormValidity();
+  }
+}
+
+function clearPTPlaceholders() { ['customerName','nickname','tel','address'].forEach(function(id) { $(id).placeholder = ''; }); }
+function applyPTData() { ['customerName','nickname','tel','address'].forEach(function(id) { var el=$(id); if (el.placeholder) el.value = el.placeholder; }); checkFormValidity(); }
+
+// ==========================================
+// GATHER FORM DATA
+// ==========================================
+function gatherFormData(prefix) {
+  var pfx   = prefix === 'edit' ? 'edit_' : '';
+  var tbody = $(prefix === 'edit' ? 'edit_courseTableBody' : 'courseTableBody');
+  var cN=[],cH=[],cP=[],cD=[],cNt=[];
+  tbody.querySelectorAll('.course-row').forEach(function(row) {
+    cN.push(row.querySelector('.course-select').value);
+    cH.push(row.querySelector('.course-hours').value);
+    cP.push(rc(row.querySelector('.course-price').value));
+    cD.push(rc(row.querySelector('.course-discount').value));
+    cNt.push(rc(row.querySelector('.course-total').value));
+  });
+  while (cN.length < 4) { cN.push(''); cH.push(''); cP.push(''); cD.push(''); cNt.push(''); }
+  return {
+    receiptNo:    $('receiptNo').value,
+    date:         $(pfx+'receiptDate').value,
+    placementNo:  document.getElementById(pfx+'placementNo') ? document.getElementById(pfx+'placementNo').value : '',
+    customerName: $(pfx+'customerName').value,
+    nickname:     $(pfx+'nickname').value,
+    taxId:        $(pfx+'taxId').value,
+    address:      $(pfx+'address').value,
+    tel:          $(pfx+'tel').value,
+    studentStatus:$(pfx+'studentStatus').value,
+    courses: { names:cN, hours:cH, prices:cP, discounts:cD, nets:cNt },
+    sumPrice:        rc($(pfx+'sumPriceDisplay').value),
+    sumDiscount:     rc($(pfx+'sumDiscountDisplay').value),
+    specialDiscount: rc($(pfx+'specialDiscount').value),
+    grandTotal:      rc($(pfx+'grandTotal').value),
+    paymentMethod:   $(pfx+'paymentMethod').value,
+    bank:            $(pfx+'bankSelect').value,
+    account:         $(pfx+'accountSelect').value,
+    remark:          $(pfx+'remark').value
+  };
+}
+
+// ==========================================
+// MODAL & MISC
+// ==========================================
+function createDiffRow(label, oldV, newV) {
+  return '<tr><td>'+esc(label)+'</td><td><span class="val-old">'+(esc(oldV)||'-')+'</span></td><td><span class="val-new">'+(esc(newV)||'-')+'</span></td></tr>';
+}
+function closeModal(id) { $(id).style.display = 'none'; }
+window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
+</script>
+</body>
 </html>
